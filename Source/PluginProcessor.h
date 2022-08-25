@@ -55,7 +55,15 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    // Audio plugin need param to control dsp. JUCE uses obj called audioprocessorvts to
+    
+    // Creates the parameter layouts, static -  no mem var
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    
+    // coordinate param w gui and dsp - public too
+    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)

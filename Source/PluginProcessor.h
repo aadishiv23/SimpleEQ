@@ -55,8 +55,26 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    // Audio plugin need param to control dsp. JUCE uses obj called audioprocessorvts to
+    
+    // Creates the parameter layouts, static -  no mem var
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    
+    // coordinate param w gui and dsp - public too
+    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
 private:
+    // each filter type has response of 12db/oct in hi/lo pass
+    using Filter = juce::dsp::IIR::Filter<float>;
+    // pass four filter (48db/oct)
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+   
+    // need two monochains to have stereo audio plus to access filter instances
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    
+    MonoChain leftChain, rightChain;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
